@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototype Visualizer · Acadryx Labs</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="lab-container">
+        <header class="lab-header">
+            <h1>🔧 JavaScript Prototype Visualizer</h1>
+            <p class="subhead">See the connection between constructors, prototypes, and instances — live.</p>
+        </header>
+
+        <!-- MAIN VISUALIZATION -->
+        <div class="viz-grid">
+            <!-- Constructor Card -->
+            <div class="viz-card constructor-card" id="constructor-card">
+                <div class="card-label">🏗️ CONSTRUCTOR FUNCTION</div>
+                <div class="code-block">
+                    function Student(name) {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;this.name = name;<br>
+                    }
+                </div>
+                <div class="property-row">
+                    <span class="property-name">.prototype</span>
+                    <span class="property-arrow">→</span>
+                    <span class="property-value">(points to →)</span>
+                </div>
+                <div class="badge">Function objects have a .prototype property</div>
+            </div>
+
+            <!-- Arrow Right (connector) -->
+            <div class="arrow-right">➡️</div>
+
+            <!-- Prototype Card -->
+            <div class="viz-card prototype-card" id="prototype-card">
+                <div class="card-label">📦 PROTOTYPE OBJECT</div>
+                <div class="code-block">
+                    Student.prototype = {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;introduce: function() { ... },<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;sayHi: function() { ... }<br>
+                    }
+                </div>
+                <div class="property-row">
+                    <span class="property-name">.constructor</span>
+                    <span class="property-arrow">→</span>
+                    <span class="property-value">(back to Student)</span>
+                </div>
+                <div class="badge">Shared methods live here — one copy for ALL instances</div>
+            </div>
+
+            <!-- Instance Row (below) -->
+            <div class="instance-row">
+                <!-- Instance 1 -->
+                <div class="viz-card instance-card" id="instance1-card">
+                    <div class="card-label">👤 INSTANCE: simeon</div>
+                    <div class="code-block">
+                        const simeon = new Student("Simeon");<br>
+                        {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;name: "Simeon"<br>
+                        }
+                    </div>
+                    <div class="property-row">
+                        <span class="property-name">[[Prototype]]</span>
+                        <span class="property-arrow">→</span>
+                        <span class="property-value">(hidden link → Student.prototype)</span>
+                    </div>
+                    <div class="badge">Instances DON'T have .prototype — they have a hidden link</div>
+                </div>
+
+                <!-- Instance 2 -->
+                <div class="viz-card instance-card" id="instance2-card">
+                    <div class="card-label">👤 INSTANCE: akin</div>
+                    <div class="code-block">
+                        const akin = new Student("Akin");<br>
+                        {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;name: "Akin"<br>
+                        }
+                    </div>
+                    <div class="property-row">
+                        <span class="property-name">[[Prototype]]</span>
+                        <span class="property-arrow">→</span>
+                        <span class="property-value">(hidden link → Student.prototype)</span>
+                    </div>
+                    <div class="badge">Both instances share the SAME prototype object</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INTERACTIVE PLAYGROUND -->
+        <div class="playground">
+            <h2>🔬 Live Playground</h2>
+            <p class="playground-note">Edit the code below and see the relationships update (conceptually).</p>
+
+            <div class="playground-grid">
+                <!-- Code Editor -->
+                <div class="editor-panel">
+                    <h3>✏️ Constructor Definition</h3>
+                    <textarea id="constructor-code" class="code-editor" rows="4">function Student(name) {
+  this.name = name;
+}</textarea>
+
+                    <h3>✏️ Prototype Methods</h3>
+                    <textarea id="prototype-code" class="code-editor" rows="4">Student.prototype.introduce = function() {
+  return `Hi, I'm ${this.name}`;
+};
+
+Student.prototype.sayHi = function() {
+  return `Hello from ${this.name}`;
+};</textarea>
+
+                    <h3>✏️ Create Instances</h3>
+                    <textarea id="instance-code" class="code-editor" rows="3">const simeon = new Student("Simeon");
+const akin = new Student("Akin");</textarea>
+
+                    <div class="button-group">
+                        <button id="run-btn" class="btn-primary">▶ Run Code</button>
+                        <button id="reset-btn" class="btn-secondary">↺ Reset</button>
+                    </div>
+                </div>
+
+                <!-- Output Panel -->
+                <div class="output-panel">
+                    <h3>📤 Output</h3>
+                    <pre id="output" class="output-area">// Click "Run Code" to see results</pre>
+
+                    <h3>🔗 Relationship Check</h3>
+                    <div id="relationship-check" class="relationship-area">
+                        <div class="check-item">
+                            <span class="check-label">Object.getPrototypeOf(simeon) === Student.prototype</span>
+                            <span id="check1" class="check-value">—</span>
+                        </div>
+                        <div class="check-item">
+                            <span class="check-label">simeon.introduce === akin.introduce</span>
+                            <span id="check2" class="check-value">—</span>
+                        </div>
+                        <div class="check-item">
+                            <span class="check-label">Student.prototype.constructor === Student</span>
+                            <span id="check3" class="check-value">—</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Reference Note -->
+            <div class="reference-note">
+                <h4>📝 The Confusion Explained</h4>
+                <div class="note-grid">
+                    <div class="note-item">
+                        <span class="note-term">Function.prototype</span>
+                        <span class="note-desc">Property of CONSTRUCTOR functions. Holds methods to share.</span>
+                    </div>
+                    <div class="note-item">
+                        <span class="note-term">Instance [[Prototype]]</span>
+                        <span class="note-desc">Hidden link from INSTANCE to the prototype object.</span>
+                    </div>
+                    <div class="note-item">
+                        <span class="note-term">Object.getPrototypeOf()</span>
+                        <span class="note-desc">Method to SEE the hidden [[Prototype]] link.</span>
+                    </div>
+                    <div class="note-item highlight">
+                        <span class="note-term">✨ KEY INSIGHT</span>
+                        <span class="note-desc">Constructor has .prototype. Instances link to it via [[Prototype]].</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="lab-footer">
+            <p>Created by <strong>simeon-dev1</strong> for The Odin Project · <a href="#" id="fork-link">Fork on CodePen</a></p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
