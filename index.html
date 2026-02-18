@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Prototypes Explained</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 900px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        .diagram {
+            position: relative;
+            margin: 60px 0;
+        }
+
+        /* Top Row - Constructor and Prototype */
+        .top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 100px;
+            position: relative;
+        }
+
+        .box {
+            background: #f8f9fa;
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            padding: 25px;
+            position: relative;
+        }
+
+        .constructor-box {
+            flex: 1;
+            max-width: 45%;
+        }
+
+        .prototype-box {
+            flex: 1;
+            max-width: 45%;
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .box-title {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .prototype-box .box-title {
+            color: #f57c00;
+        }
+
+        .code {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .methods {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .note {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        /* Arrow between constructor and prototype */
+        .arrow-horizontal {
+            position: absolute;
+            left: 48%;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 80px;
+            height: 3px;
+            background: #667eea;
+        }
+
+        .arrow-horizontal::after {
+            content: '';
+            position: absolute;
+            right: -10px;
+            top: -6px;
+            width: 0;
+            height: 0;
+            border-left: 12px solid #667eea;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+        }
+
+        .arrow-label {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #667eea;
+            white-space: nowrap;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Bottom Row - Instances */
+        .bottom-row {
+            display: flex;
+            justify-content: space-around;
+            position: relative;
+        }
+
+        .instance-box {
+            background: #e8f5e9;
+            border: 3px solid #4caf50;
+            border-radius: 15px;
+            padding: 20px;
+            width: 35%;
+            position: relative;
+        }
+
+        .instance-box .box-title {
+            color: #2e7d32;
+        }
+
+        .instance-data {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        /* Dotted arrows from instances to prototype */
+        .dotted-arrow {
+            position: absolute;
+            width: 3px;
+            background-image: linear-gradient(to bottom, #4caf50 50%, transparent 50%);
+            background-size: 3px 10px;
+            background-repeat: repeat-y;
+        }
+
+        .arrow-left {
+            left: 20%;
+            bottom: 100%;
+            height: 80px;
+        }
+
+        .arrow-right {
+            right: 20%;
+            bottom: 100%;
+            height: 80px;
+        }
+
+        .dotted-arrow::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -6px;
+            width: 0;
+            height: 0;
+            border-bottom: 12px solid #4caf50;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+        }
+
+        .dotted-label {
+            position: absolute;
+            top: 40%;
+            left: 15px;
+            background: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #4caf50;
+            white-space: nowrap;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transform: rotate(-90deg);
+            transform-origin: center;
+        }
+
+        /* Footer explanation */
+        .explanation {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f0f4ff;
+            border-left: 5px solid #667eea;
+            border-radius: 10px;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .explanation strong {
+            color: #667eea;
+        }
+
+        .key-points {
+            margin-top: 20px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .key-points h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .key-points ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .key-points li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .key-points li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #4caf50;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .top-row {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .constructor-box,
+            .prototype-box {
+                max-width: 100%;
+            }
+
+            .arrow-horizontal {
+                display: none;
+            }
+
+            .bottom-row {
+                flex-direction: column;
+                gap: 40px;
+            }
+
+            .instance-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>JavaScript Prototypes Explained</h1>
+        <p class="subtitle">Understanding Constructor Functions & Prototype Links</p>
+
+        <div class="diagram">
+            <!-- Top Row: Constructor and Prototype -->
+            <div class="top-row">
+                <div class="box constructor-box">
+                    <div class="box-title">Constructor Function</div>
+                    <div class="code">
+function Student(name) {<br>
+&nbsp;&nbsp;this.name = name;<br>
+}
+                    </div>
+                    <div class="note">Creates new instances</div>
+                </div>
+
+                <div class="arrow-horizontal">
+                    <div class="arrow-label">.prototype</div>
+                </div>
+
+                <div class="box prototype-box">
+                    <div class="box-title">Prototype Object</div>
+                    <div class="methods">
+• introduce()<br>
+• study()<br>
+• graduate()
+                    </div>
+                    <div class="note">One object shared by ALL instances</div>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Instances -->
+            <div class="bottom-row">
+                <div class="instance-box">
+                    <div class="dotted-arrow arrow-left">
+                        <div class="dotted-label">[[Prototype]]</div>
+                    </div>
+                    <div class="box-title">Instance: student1</div>
+                    <div class="instance-data">
+{<br>
+&nbsp;&nbsp;name: "Alex"<br>
+}
+                    </div>
+                </div>
+
+                <div class="instance-box">
+                    <div class="dotted-arrow arrow-right">
+                        <div class="dotted-label">[[Prototype]]</div>
+                    </div>
+                    <div class="box-title">Instance: student2</div>
+                    <div class="instance-data">
+{<br>
+&nbsp;&nbsp;name: "Jordan"<br>
+}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="explanation">
+            <strong>How It Works:</strong> The constructor function has a <strong>.prototype</strong> property that points to an object. When you create instances with <code>new Student()</code>, each instance gets a hidden link (called <strong>[[Prototype]]</strong>) to that same prototype object. This is how all instances share the same methods without duplicating them.
+        </div>
+
+        <div class="key-points">
+            <h3>Key Takeaways</h3>
+            <ul>
+                <li>The <strong>CONSTRUCTOR</strong> has a .prototype property (you can see it)</li>
+                <li>The <strong>PROTOTYPE</strong> holds methods you want ALL instances to share</li>
+                <li>Each <strong>INSTANCE</strong> has a hidden [[Prototype]] link to that shared object</li>
+                <li>All instances point to the SAME prototype object (memory efficient!)</li>
+                <li>Use <code>Object.getPrototypeOf(instance)</code> to see the link</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
